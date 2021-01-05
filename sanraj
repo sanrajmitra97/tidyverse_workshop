@@ -1,0 +1,227 @@
+#Rstudio 
+
+# Press Ctrl + Enter to run a line
+v1 <- c(1,2,3)
+
+# To run multiple lines, you can highlight them and press Ctrl + Enter
+v2 <- c(1:5, letters[1:5])
+lst1 <- list(A = rnorm(3), B = letters[1:3])
+df1 <- mtcars
+
+# As you can see in my environment, I am able to look at all the variables I have 
+# created. To view a datastructure like a dataframe, simply click on the dataframe 
+# variable in the environment. Or we can use the View function. 
+View(df1)
+
+# To remove something from the environment, we shall use the rm function.
+rm(v1)
+
+#########
+#CAUTION#
+#########
+# To remove everything from the environment, run the line below. 
+rm(list = ls())
+
+
+
+# Setting the working directory as the src. Why this is important. 
+getwd()
+
+
+# The ?.
+?rm
+
+
+# R notations and datastructures
+# Arrow notation and vectors
+v1 <- c(1,2,3)
+v2 = c("a", "b", "c")
+v3 <- c(v1, v2)
+
+#Go ahead and make some vectors, but bear in mind that the vector must contain the same
+#type of data. You cannot put numbers and letters in the same vector. 
+### 1 min break to try ### 
+
+# To access an element in a vector or list, we start our indexing from 1.
+first_ele <- v1[1]
+
+
+# To access the last element, we need to use the length function
+length(v2)
+last_ele <- v2[length(v2)]
+
+
+# To remove an element, we need to use the `-` sign and supply the index of where the 
+# element is. 
+
+#Remove last element:
+v1 <- v1[-(length(v1))]
+
+#Remove first element
+v2 <- v2[-1]
+
+
+
+#dataframes 
+col1 <- c('manpower', 'asset', 'other') #length of 3
+col2 <- c(451,511,236) #length of 3
+df <- data.frame(col1, col2)
+
+
+#Accessing the dataframe (non tidyverse way)
+# Access the column (as a vector)
+first_col <- df$col1
+first_col2 <- df[["col1"]] #Why not df["col1"] ?
+first_col2 <- df[,"col1"] # You can either supply the col name or the col number
+
+#Subsetting the dataframe
+first_col_only <- df["col1"]
+
+
+# Accessing the rows
+first_row <- df[1,]
+
+#Accessing a parituclar cell
+first_cell <- df[1,1] #Or df[row_name, col_name]
+
+# The recycling rule
+# One great thing about R is we rarely need to use loops because everything is vectori-
+# sed in R
+
+# This means that a function is able to be applied to every element in a datastructure.
+t1 <- c(1:10)
+
+#add 5 to each element
+t1_add5 <- t1 + 5
+
+#create a dataframe with the rule
+col3 <- c('manpower', 'asset', 'other') #length of 3
+col4 <- c(451) #length of 3
+df2 <- data.frame(col1, col2)
+
+# Any questions?
+
+rm(list = ls())
+
+df <- iris
+
+library(tidyverse) # Be sure to have installed the tidyverse package
+
+#If you have not installed the tidyverse package, you can do this:
+install.packages("tidyverse")
+#and then type 
+library(tidyverse)
+
+#Filter
+#I want to select the rows that only represent "setosa".
+# Non dyplyr way (many ways to do it)
+rows <- df[df$Species == "versicolor", ]
+
+#I like to use the which function
+versi_indx <- which(df$Species == "versicolor")
+rows <- df[versi_indx, ]
+
+
+#dplyr way, you need to specify the condition. 
+versi_rows <- filter(df, Species == "versicolor")
+
+#If I want versicolor and petal length to be more than the average petal length,
+# we can write multiple conditions in the filter verb.
+versi_rows2 <- filter(df, Species == "versicolor", Petal.Width> mean(Petal.Width))
+
+
+#Select is used to select columns 
+#Let's say I wanted to select only Sepal.* 
+sepal_cols <- select(df, Sepal.Length, Sepal.Width)
+speal_cols2 <- select(df, 1:2)
+
+#How would we remove a column using select? Give it a try (2 mins)
+
+
+#Mutate is used to create a new column
+# Let's say I want to create a new column which adds the sepal length and sepal width
+df <- mutate(df, added_sepal = Sepal.Width + Sepal.Length)
+
+#So for mutate, you need to input a vector that is either the same length as the data
+# frame or is of length 1, and that element will be recylced. 
+
+# What if I wanted to add a column that uses a condition?
+df <- mutate(df, long_petals = if_else(Petal.Length > mean(Petal.Length), TRUE, FALSE))
+
+#group_by
+# group by helps to group data based on a the different variables in the column
+# you chose to group_by
+
+#Show drawing/visual aid
+df_grouped <- group_by(df, .Species)
+
+
+#Now, this may not seem like much, but group by works together with other verbs. 
+
+#Summarise 
+#Summarise and group by work together 
+#Let's say I wanted to find the mean petal length for each species. 
+df_avg_length <- df_grouped %>% 
+  summarise(avg_petal_length = mean(Petal.Length), .groups = "drop")
+
+# What does %>% do?
+# It means I am sending the dataframe before %>% to the function after %>% . 
+# I can repeatedly do this. 
+
+df_grouped_arranged <- df_grouped %>%
+  summarise(avg_petal_length = mean(Petal.Length), .groups = "drop") %>% 
+  arrange(avg_petal_length)
+
+# Arrange arranged the rows in either increasing or decreasing order
+# From the example above, I arranged the mean petal length in increasing order
+# I can change it to decreasing order like this:
+
+df_grouped_arranged <- df_grouped_arranged %>% 
+  arrange(desc(avg_petal_length))
+
+
+#Any questions? 
+
+# Now it's your turn
+# But first, let us read in a csv file. In order to do so, we must make sure that the
+# file is in the right folder. It must be located in the data folder. 
+
+heights <- read.csv("../data/heights.csv")
+
+  
+# Question 1: Filter out people who are older thant the average age.
+
+# Question 2: Using the filtered dataframe, 
+# use group_by and summarise to find the max height in males and females, and label this
+# column as max_height
+
+# Question 3: Find the average salary for the different races and arrange the dataframe
+# in decreasing order of salary. 
+
+# Question 4 (harder): Using mutate and the function if_else, 
+# change the Male and Female to 1 and 0 respectively.(hint: See how if_else is used
+# by typing ?if_else)
+
+
+#Answers are below:
+#Q1 
+h1 <- heights %>% 
+  filter(age > mean(age))
+
+#Q2
+h2 <- h1 %>% 
+  group_by(sex) %>% 
+  summarise(max_height = max(height), .groups = "drop")
+
+#Q3
+h3 <- heights %>% 
+  group_by(race) %>% 
+  summarise(avg_salary = mean(earn), .groups = "drop") %>% 
+  arrange(avg_salary)
+
+#Q4
+h4 <- heights %>% 
+  mutate(sex = if_else( sex == "male", 1, 0))
+
+
+
